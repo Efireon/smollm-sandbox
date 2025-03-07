@@ -54,4 +54,46 @@ languages:
       - "fs"
       - "path"
       - "util"
-      - "crypto
+      - "crypto"
+      - "assert"
+      - "buffer"
+      - "events"
+    blocked_modules:
+      - "child_process"
+      - "cluster"
+      - "dgram"
+      - "dns"
+      - "http"
+      - "https"
+      - "net"
+
+  go:
+    enabled: true
+    command: "go"
+    file_extension: ".go"
+    timeout: 60
+    compile_check: ["build", "-o", "/dev/null"]
+    run_args: ["run"]
+    allowed_packages:
+      - "fmt"
+      - "strings"
+      - "strconv"
+      - "math"
+      - "time"
+      - "encoding/json"
+      - "errors"
+      - "sort"
+    blocked_packages:
+      - "os/exec"
+      - "net"
+      - "net/http"
+      - "syscall"
+
+  c:
+    enabled: true
+    command: "gcc"
+    file_extension: ".c"
+    timeout: 60
+    compile_check: ["-fsyntax-only"]
+    compile_args: ["-Wall", "-O2"]
+    run_args: []

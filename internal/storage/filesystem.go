@@ -33,6 +33,15 @@ type FileInfo struct {
 	Permission string    `json:"permission"`
 }
 
+// SessionInfo содержит информацию о сессии
+type SessionInfo struct {
+	Name       string    `json:"name"`
+	Path       string    `json:"path"`
+	CreatedAt  time.Time `json:"created_at"`
+	ModifiedAt time.Time `json:"modified_at"`
+	Size       int64     `json:"size"`
+}
+
 // NewFileSystem создает новый экземпляр FileSystem
 func NewFileSystem(rootDir string) *FileSystem {
 	logger := logging.NewLogger()

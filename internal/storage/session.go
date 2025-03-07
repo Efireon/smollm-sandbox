@@ -20,8 +20,8 @@ type SessionManager struct {
 	sessionsDir string
 }
 
-// SessionInfo представляет метаинформацию о сессии
-type SessionInfo struct {
+// SessionMeta представляет метаинформацию о сессии
+type SessionMeta struct {
 	Name         string    `json:"name"`
 	Path         string    `json:"path"`
 	CreatedAt    time.Time `json:"created_at"`
@@ -119,7 +119,7 @@ func (sm *SessionManager) DeleteSession(name string) error {
 }
 
 // ListSessions возвращает список всех сессий
-func (sm *SessionManager) ListSessions() ([]SessionInfo, error) {
+func (sm *SessionManager) ListSessions() ([]SessionMeta, error) {
 	// Получаем список файлов в директории сессий
 	files, err := sm.fs.ListFiles(sm.sessionsDir)
 	if err != nil {
@@ -127,7 +127,7 @@ func (sm *SessionManager) ListSessions() ([]SessionInfo, error) {
 	}
 
 	// Фильтруем и собираем информацию о сессиях
-	sessions := make([]SessionInfo, 0, len(files))
+	sessions := make([]SessionMeta, 0, len(files))
 	for _, file := range files {
 		// Проверяем, что это JSON файл
 		if !strings.HasSuffix(file.Name, ".json") {
@@ -169,7 +169,7 @@ func (sm *SessionManager) ListSessions() ([]SessionInfo, error) {
 		}
 
 		// Добавляем в результат
-		sessions = append(sessions, SessionInfo{
+		sessions = append(sessions, SessionMeta{
 			Name:         name,
 			Path:         filepath.Join(sm.sessionsDir, file.Name),
 			CreatedAt:    createdAt,

@@ -9,7 +9,7 @@ set -e
 INSTALL_DIR="/usr/local/bin"
 CONFIG_DIR="/etc/smollm-sandbox"
 MODEL_DIR="/opt/smollm-models"
-REPO_URL="https://github.com/yourusername/smollm-sandbox"
+REPO_URL="https://smollm-sandbox"
 BRANCH="main"
 
 # Проверка прав root

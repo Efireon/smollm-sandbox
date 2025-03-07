@@ -27,6 +27,7 @@ type Environment struct {
 	logger   *logging.Logger
 	workDir  string
 	timeouts map[string]int // Таймауты для разных языков
+	executor *Executor
 }
 
 // CompilerConfig содержит конфигурацию для компилятора
@@ -66,14 +67,47 @@ func NewEnvironment() *Environment {
 		".cpp": TIMEOUT_SECONDS * 2,
 	}
 
+	// Создаем исполнитель
+	executor := NewExecutor(workDir)
+
 	return &Environment{
 		logger:   logger,
 		workDir:  workDir,
 		timeouts: timeouts,
+		executor: executor,
 	}
 }
 
 // Execute выполняет файл в песочнице
+func (e *Environment) Execute(filename string) (string, error) {
+	e.logger.Info("Executing file: %s", filename)
+
+	// Выполняем файл через executor
+	result, err := e.executor.ExecuteFile(filename)
+	if err != nil {
+		return "", err
+	}
+
+	// Обновляем метрики
+	e.logger.GetMetrics().IncrementExecutions()
+
+	// Формируем вывод
+	var output string
+	if result.Success {
+		output = fmt.Sprintf("Выполнение успешно завершено за %v\n\n", result.ExecuteTime)
+		output += result.Output
+	} else {
+		output = fmt.Sprintf("Ошибка выполнения (код %d):\n", result.ExitCode)
+		if result.Error != "" {
+			output += result.Error + "\n"
+		}
+		if result.Output != "" {
+			output += "\nВывод программы:\n" + result.Output
+		}
+	}
+
+	return output, nil
+}
 func (e *Environment) Execute(filename string) (string, error) {
 	e.logger.Info("Executing file: %s", filename)
 
@@ -190,5 +224,30 @@ func (e *Environment) compile(filename string, config CompilerConfig) (string, e
 		}
 	case <-time.After(time.Duration(timeout) * time.Second):
 		// Убиваем процесс, если он превысил таймаут
+		select {
+	case err := <-done:
+		if err != nil {
+			// Проверяем код выхода
+			var exitErr *exec.ExitError
+			if errors.As(err, &exitErr) {
+				exitCode := exitErr.ExitCode()
+				
+				// Проверяем наличие известной ошибки
+				if errorMsg, ok := config.ErrorCodes[exitCode]; ok {
+					return "", fmt.Errorf("%s (код %d): %s", errorMsg, exitCode, stderr.String())
+				}
+				
+				return "", fmt.Errorf("ошибка компиляции (код %d): %s", exitCode, stderr.String())
+			}
+			
+			return "", fmt.Errorf("ошибка запуска компилятора: %v", err)
+		}
+	case <-time.After(time.Duration(timeout) * time.Second):
+		// Убиваем процесс, если он превысил таймаут
 		cmd.Process.Kill()
 		return "", fmt.Errorf("превышено время компиляции (%d секунд)", timeout)
+	}
+	
+	// Если дошли сюда, значит компиляция прошла успешно
+	return outputFile, nil
+}
