@@ -1,0 +1,57 @@
+# Конфигурация песочницы для выполнения кода
+
+# Общие настройки песочницы
+sandbox:
+  working_dir: "/home/smollm/workspace/code"
+  temp_dir: "/home/smollm/workspace/temp"
+  max_execution_time: 30  # Максимальное время выполнения в секундах
+  max_output_size: 1048576  # Максимальный размер вывода (1MB)
+  max_file_size: 10485760  # Максимальный размер файла (10MB)
+
+# Ограничения ресурсов
+limits:
+  memory: 512  # MB
+  cpu: 50  # % от одного ядра
+  disk: 100  # MB
+  processes: 10
+  files: 64
+
+# Настройки языков программирования
+languages:
+  python:
+    enabled: true
+    command: "python3"
+    file_extension: ".py"
+    timeout: 30
+    compile_check: ["-m", "py_compile"]
+    run_args: []
+    allowed_modules:
+      - "math"
+      - "random"
+      - "datetime"
+      - "json"
+      - "re"
+      - "collections"
+      - "os.path"
+      - "functools"
+      - "itertools"
+    blocked_modules:
+      - "os"
+      - "sys"
+      - "subprocess"
+      - "multiprocessing"
+      - "socket"
+      - "requests"
+
+  javascript:
+    enabled: true
+    command: "node"
+    file_extension: ".js"
+    timeout: 30
+    compile_check: ["--check"]
+    run_args: []
+    allowed_modules:
+      - "fs"
+      - "path"
+      - "util"
+      - "crypto

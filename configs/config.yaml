@@ -1,0 +1,46 @@
+# Основная конфигурация SmolLM Sandbox
+
+# Настройки модели
+model:
+  name: "SmolLM2-135M-Instruct"
+  path: "/opt/smollm-models/SmolLM2-135M-Instruct"
+  parameters:
+    temperature: 0.7
+    top_p: 0.9
+    max_tokens: 2048
+    top_k: 40
+  thinking:
+    enabled: true
+    seed: 42
+    max_time: 3600  # Максимальное время размышления в секундах
+
+# Настройки логирования
+logging:
+  level: "info"  # debug, info, warn, error, fatal
+  file: "/var/log/smollm-sandbox/smollm.log"
+  console: true
+  metrics: true
+
+# Настройки хранилища
+storage:
+  root_dir: "/home/smollm/workspace"
+  sessions_dir: "sessions"
+  thoughts_dir: "thoughts"
+  code_dir: "code"
+  temp_dir: "temp"
+  max_sessions: 100
+  max_file_size: 10485760  # 10MB
+
+# Настройки CLI
+cli:
+  history_file: "/home/smollm/.smollm_history"
+  default_mode: "interactive"
+  prompt: "smollm> "
+  thinking_prompt: "thinking..."
+
+# Настройки телеграма (опционально)
+telegram:
+  enabled: false
+  token: ""
+  allowed_users: []
+  admin_users: []
