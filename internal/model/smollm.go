@@ -13,7 +13,7 @@ import (
 
 const (
 	// Константы для работы с моделью
-	MODEL_PATH    = "models/SmolLM2-135M-Instruct"
+	MODEL_PATH    = "/opt/smollm-models/SmolLM2-135M-Instruct"
 	MAX_TOKENS    = 2048
 	TEMPERATURE   = 0.7
 	TOP_P         = 0.9
@@ -22,14 +22,15 @@ const (
 
 // SmolLM представляет интерфейс для работы с моделью SmolLM2
 type SmolLM struct {
-	logger        *logging.Logger
-	modelPath     string
-	contextSize   int
-	temperature   float64
-	topP          float64
-	history       []ContextEntry
-	mutex         sync.Mutex
-	modelInstance interface{} // Здесь будет интерфейс к модели машинного обучения
+	logger      *logging.Logger
+	modelPath   string
+	contextSize int
+	temperature float64
+	topP        float64
+	history     []ContextEntry
+	mutex       sync.Mutex
+	inferencer  *Inferencer // Интерфейс для инференса модели
+	context     *Context    // Управление контекстом
 }
 
 // ContextEntry представляет одну запись в истории контекста
@@ -44,8 +45,12 @@ func NewSmolLM() *SmolLM {
 	logger := logging.NewLogger()
 	logger.Info("Initializing SmolLM2 model")
 
-	// TODO: Реализовать загрузку модели из HuggingFace
-	// Это потребует интеграции с библиотекой машинного обучения или API
+	// Создаем контекст
+	ctx := NewContext()
+	ctx.AddSystemMessage("Ты SmolLM2, маленькая, но умная языковая модель. Ты можешь писать код, объяснять понятия и размышлять на разные темы.")
+
+	// Создаем объект для инференса
+	inferencer := NewInferencer(MODEL_PATH)
 
 	return &SmolLM{
 		logger:      logger,
@@ -54,6 +59,8 @@ func NewSmolLM() *SmolLM {
 		temperature: TEMPERATURE,
 		topP:        TOP_P,
 		history:     make([]ContextEntry, 0),
+		inferencer:  inferencer,
+		context:     ctx,
 	}
 }
 
@@ -62,26 +69,34 @@ func (s *SmolLM) Process(input string) string {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	// Добавляем ввод пользователя в историю
+	// Добавляем ввод пользователя в историю и контекст
 	s.history = append(s.history, ContextEntry{
 		Role:    "user",
 		Content: input,
 		Time:    time.Now(),
 	})
+	s.context.AddUserMessage(input)
 
 	// Подготовка контекста для модели
-	context := s.prepareContext()
+	contextStr := s.prepareContext()
 
-	// TODO: Здесь должен быть вызов модели с контекстом
-	// В реальной реализации мы бы использовали API модели
-	response := s.mockModelInference(context)
+	// Вызываем модель с контекстом
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
 
-	// Добавляем ответ в историю
+	response, err := s.inferencer.Generate(ctx, contextStr, MAX_TOKENS/2, s.temperature, s.topP)
+	if err != nil {
+		s.logger.Error("Inference error: %v", err)
+		response = "Извините, произошла ошибка при обработке запроса. Пожалуйста, попробуйте еще раз."
+	}
+
+	// Добавляем ответ в историю и контекст
 	s.history = append(s.history, ContextEntry{
 		Role:    "assistant",
 		Content: response,
 		Time:    time.Now(),
 	})
+	s.context.AddAssistantMessage(response)
 
 	// Обрезаем историю, если она слишком длинная
 	s.truncateHistory()
@@ -120,7 +135,14 @@ func (s *SmolLM) Think(seconds int, outputFile string) {
 
 	writer.WriteString("## Начало размышлений\n\n")
 
-	thought := s.mockModelInference(prompt)
+	// Запрашиваем первую мысль
+	thought, err := s.inferencer.ThinkingGenerate(ctx, prompt, 200)
+	if err != nil {
+		s.logger.Error("Error in thinking mode: %v", err)
+		writer.WriteString("Ошибка в режиме размышления: " + err.Error())
+		return
+	}
+
 	writer.WriteString(thought + "\n\n")
 
 	// Цикл размышлений
@@ -133,7 +155,13 @@ func (s *SmolLM) Think(seconds int, outputFile string) {
 			return
 		default:
 			// Продолжаем размышления, используя предыдущую мысль как контекст
-			nextThought := s.mockModelInference("Продолжаю размышлять о " + thought[:100] + "...")
+			nextThought, err := s.inferencer.ThinkingGenerate(ctx, "Продолжаю размышлять о "+thought, 200)
+			if err != nil {
+				s.logger.Error("Error in thinking mode: %v", err)
+				writer.WriteString("\nОшибка в режиме размышления: " + err.Error() + "\n")
+				continue
+			}
+
 			writer.WriteString(nextThought + "\n\n")
 			thought = nextThought
 
@@ -148,10 +176,8 @@ func (s *SmolLM) SaveSession(sessionName string) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	// TODO: Реализовать сохранение состояния модели и истории
-	s.logger.Info("Saving session: %s", sessionName)
-
-	return nil
+	// Сохраняем контекст
+	return s.context.Save(sessionName)
 }
 
 // LoadSession загружает сессию
@@ -159,63 +185,81 @@ func (s *SmolLM) LoadSession(sessionName string) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	// TODO: Реализовать загрузку состояния модели и истории
-	s.logger.Info("Loading session: %s", sessionName)
+	// Загружаем контекст
+	newContext, err := LoadContext(sessionName)
+	if err != nil {
+		return err
+	}
 
+	s.context = newContext
+
+	// Обновляем внутреннюю историю
+	s.history = []ContextEntry{}
+	for _, msg := range s.context.Messages {
+		s.history = append(s.history, ContextEntry{
+			Role:    msg.Role,
+			Content: msg.Content,
+			Time:    msg.Timestamp,
+		})
+	}
+
+	s.logger.Info("Session loaded: %s", sessionName)
 	return nil
+}
+
+// Close освобождает ресурсы
+func (s *SmolLM) Close() {
+	s.inferencer.Close()
 }
 
 // Вспомогательные методы
 
 // prepareContext готовит контекст для модели на основе истории
 func (s *SmolLM) prepareContext() string {
-	var context string
+	var contextStr string
 
-	// Используем последние N записей, которые помещаются в контекстное окно
-	// TODO: Более умная логика для подготовки контекста
+	// Добавляем системное сообщение
+	systemMsg, found := s.getSystemMessage()
+	if found {
+		contextStr += "Системная инструкция: " + systemMsg + "\n\n"
+	}
 
+	// Добавляем историю диалога
 	for _, entry := range s.history {
 		prefix := ""
 		if entry.Role == "user" {
 			prefix = "Человек: "
-		} else {
+		} else if entry.Role == "assistant" {
 			prefix = "Ассистент: "
+		} else {
+			continue // Пропускаем системные сообщения
 		}
-		context += prefix + entry.Content + "\n"
+		contextStr += prefix + entry.Content + "\n\n"
 	}
 
-	return context
+	// Добавляем префикс для ответа
+	contextStr += "Ассистент: "
+
+	return contextStr
+}
+
+// getSystemMessage возвращает системное сообщение из контекста
+func (s *SmolLM) getSystemMessage() (string, bool) {
+	for _, msg := range s.context.Messages {
+		if msg.Role == "system" {
+			return msg.Content, true
+		}
+	}
+	return "", false
 }
 
 // truncateHistory обрезает историю, чтобы она не превышала максимальный размер
 func (s *SmolLM) truncateHistory() {
-	// Простая реализация - оставляем только последние 10 записей
-	// TODO: Более умная логика для обрезки истории
-	maxEntries := 10
-	if len(s.history) > maxEntries {
-		s.history = s.history[len(s.history)-maxEntries:]
+	// Максимальное количество сообщений в истории
+	maxMessages := 10
+
+	// Оставляем только последние maxMessages сообщений
+	if len(s.history) > maxMessages {
+		s.history = s.history[len(s.history)-maxMessages:]
 	}
-}
-
-// mockModelInference эмулирует вызов модели (будет заменено на реальную интеграцию)
-func (s *SmolLM) mockModelInference(input string) string {
-	// В реальной реализации здесь будет вызов API модели
-	s.logger.Info("Mock inference with input length: %d", len(input))
-
-	// Заглушка для демонстрации
-	responses := []string{
-		"Я считаю, что это интересная идея. Давайте рассмотрим возможные алгоритмы...",
-		"Для решения этой задачи можно использовать следующий подход...",
-		"Вот пример кода, который может помочь решить эту проблему:\n\n```python\ndef solve(input_data):\n    # Обработка\n    return result\n```",
-		"Я размышляю о природе вычислений и о том, как можно оптимизировать алгоритмы...",
-		"Интересно проанализировать эту задачу с точки зрения теории алгоритмов...",
-	}
-
-	// Выбираем ответ на основе содержимого ввода
-	index := len(input) % len(responses)
-
-	// Добавляем немного случайности
-	time.Sleep(time.Duration(500+len(input)%1000) * time.Millisecond)
-
-	return responses[index]
 }

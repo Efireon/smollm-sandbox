@@ -3,6 +3,7 @@ package model
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"time"
 )
 
@@ -165,4 +166,55 @@ func (c *Context) GetSummary() map[string]any {
 		"tokens_used":      c.State.TokensUsed,
 		"thinking_enabled": c.State.ThinkingEnabled,
 	}
+}
+
+// Save сохраняет контекст в файл
+func (c *Context) Save(name string) error {
+	// Формируем имя файла
+	fileName := fmt.Sprintf("sessions/%s.json", name)
+
+	// Сериализуем контекст в JSON
+	data, err := c.ToJSON()
+	if err != nil {
+		return fmt.Errorf("ошибка сериализации контекста: %v", err)
+	}
+
+	// Создаем директорию если нужно
+	if err := os.MkdirAll("sessions", 0755); err != nil {
+		return fmt.Errorf("ошибка создания директории сессий: %v", err)
+	}
+
+	// Сохраняем файл
+	if err := os.WriteFile(fileName, data, 0644); err != nil {
+		return fmt.Errorf("ошибка записи файла сессии: %v", err)
+	}
+
+	return nil
+}
+
+// LoadContext загружает контекст из файла
+func LoadContext(name string) (*Context, error) {
+	// Формируем имя файла
+	fileName := fmt.Sprintf("sessions/%s.json", name)
+
+	// Проверяем существование файла
+	if _, err := os.Stat(fileName); os.IsNotExist(err) {
+		return nil, fmt.Errorf("сессия не найдена: %s", name)
+	}
+
+	// Читаем файл
+	data, err := os.ReadFile(fileName)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка чтения файла сессии: %v", err)
+	}
+
+	// Создаем новый контекст
+	context := NewContext()
+
+	// Десериализуем данные
+	if err := context.FromJSON(data); err != nil {
+		return nil, fmt.Errorf("ошибка десериализации контекста: %v", err)
+	}
+
+	return context, nil
 }
