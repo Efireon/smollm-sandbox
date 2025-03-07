@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -214,7 +215,31 @@ func (e *Executor) ExecuteFile(filePath string) (*ExecuteResult, error) {
 	return result, nil
 }
 
-// ExecuteCode выполняет строку кода указанного языка
+// copyFile копирует файл из источника в назначение
+func copyFile(src, dst string) error {
+	// Открываем исходный файл
+	srcFile, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer srcFile.Close()
+
+	// Создаем целевой файл
+	dstFile, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer dstFile.Close()
+
+	// Копируем содержимое
+	_, err = io.Copy(dstFile, srcFile)
+	if err != nil {
+		return err
+	}
+
+	// Устанавливаем права на выполнение
+	return os.Chmod(dst, 0755)
+}
 func (e *Executor) ExecuteCode(code string, language string) (*ExecuteResult, error) {
 	// Определяем расширение файла на основе языка
 	var ext string

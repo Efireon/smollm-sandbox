@@ -1,0 +1,20 @@
+[2025-03-07 15:13:06.626] [INFO] [main.go:48] Starting SmolLM Sandbox
+[2025-03-07 15:13:06.626] [INFO] [main.go:51] Loading configuration from configs/config.yaml
+[2025-03-07 15:13:06.627] [INFO] [main.go:59] Initializing SmolLM2 model
+[2025-03-07 15:13:06.627] [INFO] [smollm.go:45] Initializing SmolLM2 model
+[2025-03-07 15:13:06.627] [INFO] [main.go:63] Setting up sandbox environment
+[2025-03-07 15:13:06.627] [INFO] [environment.go:52] Initializing sandbox environment
+[2025-03-07 15:13:12.314] [INFO] [smollm.go:203] Mock inference with input length: 30
+[2025-03-07 15:13:17.582] [INFO] [smollm.go:203] Mock inference with input length: 213
+[2025-03-07 15:13:26.050] [INFO] [smollm.go:203] Mock inference with input length: 405
+[2025-03-07 15:13:38.305] [INFO] [smollm.go:203] Mock inference with input length: 583
+[2025-03-07 15:13:39.389] [INFO] [smollm.go:203] Mock inference with input length: 768
+[2025-03-07 15:13:40.657] [INFO] [smollm.go:203] Mock inference with input length: 952
+[2025-03-07 15:13:55.991] [INFO] [smollm.go:203] Mock inference with input length: 992
+[2025-03-07 15:14:51.671] [INFO] [smollm.go:203] Mock inference with input length: 1035
+[2025-03-07 15:14:52.206] [INFO] [smollm.go:203] Mock inference with input length: 1031
+[2025-03-07 15:15:38.936] [INFO] [smollm.go:203] Mock inference with input length: 1005
+[2025-03-07 15:15:44.679] [INFO] [smollm.go:203] Mock inference with input length: 1001
+[2025-03-07 15:15:51.836] [INFO] [smollm.go:203] Mock inference with input length: 930
+[2025-03-07 15:15:53.266] [INFO] [smollm.go:203] Mock inference with input length: 883
+[2025-03-07 15:16:02.582] [INFO] [main.go:83] SmolLM Sandbox finished
