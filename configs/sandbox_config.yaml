@@ -10,11 +10,11 @@ sandbox:
 
 # Ограничения ресурсов
 limits:
-  memory: 512  # MB
+  memory: 1024  # MB
   cpu: 50  # % от одного ядра
-  disk: 100  # MB
-  processes: 10
-  files: 64
+  disk: 8096  # MB
+  processes: 20
+  files: 1024
 
 # Настройки языков программирования
 languages:

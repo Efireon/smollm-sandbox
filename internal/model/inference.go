@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -89,42 +90,88 @@ func (i *Inferencer) startModelServer() error {
 		return nil
 	}
 
-	// Запускаем API сервер с помощью Python скрипта
 	// Создаем временную директорию для скрипта
 	scriptDir := "/tmp/smollm_api"
 	os.MkdirAll(scriptDir, 0755)
 
+	// Путь к скрипту
+	scriptPath := filepath.Join(scriptDir, "server.py")
+
 	// Создаем Python скрипт для запуска сервера
-	serverScript := `
+	script := `
+import os
+import sys
+import json
+import time
+import traceback
+
+# Проверка и установка зависимостей
+def install_dependencies():
+    import subprocess
+    import pkg_resources
+
+    def package_installed(package):
+        try:
+            pkg_resources.get_distribution(package)
+            return True
+        except pkg_resources.DistributionNotFound:
+            return False
+
+    def install_package(package):
+        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
+    # Список необходимых пакетов
+    required_packages = [
+        "torch",
+        "transformers", 
+        "fastapi", 
+        "uvicorn", 
+        "pydantic"
+    ]
+
+    for package in required_packages:
+        if not package_installed(package):
+            print(f"Устанавливаю {package}...")
+            install_package(package)
+
+# Установка зависимостей перед импортом
+install_dependencies()
+
 import torch
 from transformers import pipeline, AutoModelForCausalLM, AutoTokenizer
 from fastapi import FastAPI, HTTPException, Body
 from pydantic import BaseModel
 import uvicorn
-import time
-import os
-import sys
+
+# Настройки безопасности и совместимости
+torch.set_default_dtype(torch.float32)
 
 # Определяем модель и токенизатор
-model_path = os.environ.get("MODEL_PATH", "")
-if not model_path:
-    print("MODEL_PATH not set")
+MODEL_PATH = os.environ.get("MODEL_PATH", "")
+if not MODEL_PATH:
+    print("MODEL_PATH не установлен")
     sys.exit(1)
 
-print(f"Loading model from {model_path}")
-tokenizer = AutoTokenizer.from_pretrained(model_path)
-model = AutoModelForCausalLM.from_pretrained(
-    model_path, 
-    torch_dtype=torch.float16, 
-    device_map="auto", 
-    load_in_4bit=True
-)
+print(f"Загрузка модели из {MODEL_PATH}")
 
-generator = pipeline(
-    "text-generation",
-    model=model,
-    tokenizer=tokenizer
-)
+# Безопасная загрузка модели с обработкой ошибок
+try:
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
+    model = AutoModelForCausalLM.from_pretrained(
+        MODEL_PATH, 
+        torch_dtype=torch.float32,
+        device_map="auto"
+    )
+
+    generator = pipeline(
+        "text-generation",
+        model=model,
+        tokenizer=tokenizer
+    )
+except Exception as e:
+    print(f"Ошибка при загрузке модели: {e}")
+    traceback.print_exc()
+    sys.exit(1)
 
 # Создаем FastAPI приложение
 app = FastAPI(title="SmolLM2 API")
@@ -152,7 +199,7 @@ def health_check():
 def generate(request: GenerateRequest = Body(...)):
     start_time = time.time()
     
-    # Устанавливаем seed если он указан
+    # Устанавливаем seed если указан
     if request.seed is not None:
         torch.manual_seed(request.seed)
     
@@ -160,94 +207,98 @@ def generate(request: GenerateRequest = Body(...)):
     prompt_tokens = len(tokenizer.encode(request.prompt))
     
     # Генерируем ответ
-    outputs = generator(
-        request.prompt,
-        max_new_tokens=request.max_tokens,
-        temperature=request.temperature,
-        top_p=request.top_p,
-        top_k=request.top_k,
-        do_sample=True,
-        pad_token_id=tokenizer.eos_token_id
-    )
-    
-    # Получаем сгенерированный текст
-    generated_text = outputs[0]["generated_text"]
-    
-    # Отрезаем промпт, чтобы получить только сгенерированный текст
-    if generated_text.startswith(request.prompt):
-        generated_text = generated_text[len(request.prompt):]
-    
-    # Если есть стоп-токены, обрезаем по ним
-    for stop_token in request.stop_tokens:
-        if stop_token in generated_text:
-            generated_text = generated_text.split(stop_token)[0]
-    
-    # Общее количество использованных токенов
-    total_tokens = len(tokenizer.encode(generated_text)) + prompt_tokens
-    
-    # Время генерации
-    generation_time = time.time() - start_time
-    
-    return GenerateResponse(
-        text=generated_text,
-        tokens_used=total_tokens,
-        generated_in=generation_time,
-        prompt_tokens=prompt_tokens
-    )
+    try:
+        outputs = generator(
+            request.prompt,
+            max_new_tokens=request.max_tokens,
+            temperature=request.temperature,
+            top_p=request.top_p,
+            top_k=request.top_k,
+            do_sample=True,
+            pad_token_id=tokenizer.eos_token_id
+        )
+        
+        # Получаем сгенерированный текст
+        generated_text = outputs[0]["generated_text"]
+        
+        # Отрезаем промпт, чтобы получить только сгенерированный текст
+        if generated_text.startswith(request.prompt):
+            generated_text = generated_text[len(request.prompt):]
+        
+        # Если есть стоп-токены, обрезаем по ним
+        for stop_token in request.stop_tokens:
+            if stop_token in generated_text:
+                generated_text = generated_text.split(stop_token)[0]
+        
+        # Общее количество использованных токенов
+        total_tokens = len(tokenizer.encode(generated_text)) + prompt_tokens
+        
+        # Время генерации
+        generation_time = time.time() - start_time
+        
+        return GenerateResponse(
+            text=generated_text,
+            tokens_used=total_tokens,
+            generated_in=generation_time,
+            prompt_tokens=prompt_tokens
+        )
+    except Exception as e:
+        print(f"Ошибка генерации: {e}")
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     uvicorn.run(app, host="localhost", port=8000)
 `
 
-	scriptPath := scriptDir + "/server.py"
-	err = os.WriteFile(scriptPath, []byte(serverScript), 0755)
-	if err != nil {
+	// Записываем скрипт в файл
+	if err := os.WriteFile(scriptPath, []byte(script), 0755); err != nil {
 		return fmt.Errorf("ошибка создания скрипта сервера: %v", err)
 	}
 
-	// Запускаем сервер
-	cmd := exec.Command("python", "-m", "venv", scriptDir+"/venv")
-	err = cmd.Run()
-	if err != nil {
+	// Создаем виртуальное окружение
+	venvPath := filepath.Join(scriptDir, "venv")
+	cmd := exec.Command("python3", "-m", "venv", venvPath)
+	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("ошибка создания виртуального окружения: %v", err)
 	}
 
-	// Устанавливаем зависимости
-	cmd = exec.Command(scriptDir+"/venv/bin/pip", "install", "torch", "transformers", "fastapi", "uvicorn", "pydantic")
-	err = cmd.Run()
-	if err != nil {
-		return fmt.Errorf("ошибка установки зависимостей: %v", err)
-	}
-
 	// Запускаем сервер в фоновом режиме
-	i.modelCmd = exec.Command(scriptDir+"/venv/bin/python", scriptPath)
-	i.modelCmd.Env = append(os.Environ(), "MODEL_PATH="+i.modelPath)
+	i.modelCmd = exec.Command(
+		filepath.Join(venvPath, "bin", "python"),
+		scriptPath,
+	)
+
+	// Устанавливаем окружение с путем к модели
+	i.modelCmd.Env = append(os.Environ(),
+		fmt.Sprintf("MODEL_PATH=%s", i.modelPath),
+		fmt.Sprintf("PYTHONPATH=%s", venvPath+"/lib/python3.11/site-packages"),
+	)
 
 	// Перенаправляем вывод в файл
-	logFile, err := os.Create(scriptDir + "/server.log")
+	logFile, err := os.Create(filepath.Join(scriptDir, "server.log"))
 	if err != nil {
 		return fmt.Errorf("ошибка создания файла логов: %v", err)
 	}
-
 	i.modelCmd.Stdout = logFile
 	i.modelCmd.Stderr = logFile
 
-	err = i.modelCmd.Start()
-	if err != nil {
+	// Запускаем процесс
+	if err := i.modelCmd.Start(); err != nil {
 		return fmt.Errorf("ошибка запуска сервера: %v", err)
 	}
 
 	i.modelProc = i.modelCmd.Process
 	i.logger.Info("Model API server started, PID: %d", i.modelProc.Pid)
 
-	// Ждем запуска сервера
-	for attempts := 0; attempts < 30; attempts++ {
+	// Ждем запуска сервера с расширенным таймаутом
+	for attempts := 0; attempts < 60; attempts++ {
 		resp, err := http.Get(i.apiURL + "/health")
 		if err == nil && resp.StatusCode == http.StatusOK {
 			i.logger.Info("Model API server is now running")
 			return nil
 		}
-		time.Sleep(1 * time.Second)
+		time.Sleep(2 * time.Second)
 	}
 
 	return fmt.Errorf("таймаут ожидания запуска сервера")
@@ -347,86 +398,139 @@ func (i *Inferencer) generateLocally(ctx context.Context, prompt string, maxToke
 	scriptDir := "/tmp/smollm_inference"
 	os.MkdirAll(scriptDir, 0755)
 
+	// Путь к скрипту
+	scriptPath := filepath.Join(scriptDir, "inference.py")
+
+	// Экранируем специальные символы в промпте
+	safePrompt := strings.ReplaceAll(prompt, "\\", "\\\\")
+	safePrompt = strings.ReplaceAll(safePrompt, "\"", "\\\"")
+	safePrompt = strings.ReplaceAll(safePrompt, "\n", "\\n")
+
 	// Создаем Python скрипт для инференса
 	script := fmt.Sprintf(`
-import torch
-from transformers import pipeline, AutoModelForCausalLM, AutoTokenizer
-import json
+import os
 import sys
+import json
+import time
+import traceback
+import subprocess
+import ensurepip
 
-# Аргументы инференса
-prompt = %q
-max_tokens = %d
-temperature = %f
-top_p = %f
+def log(message):
+    timestamp = time.strftime("%%Y-%%m-%%d %%H:%%M:%%S")
+    print(f"[{timestamp}] {message}", flush=True)
 
-# Загружаем модель и токенизатор
-model_path = %q
-tokenizer = AutoTokenizer.from_pretrained(model_path)
-model = AutoModelForCausalLM.from_pretrained(
-    model_path, 
-    torch_dtype=torch.float16, 
-    device_map="auto", 
-    load_in_4bit=True
-)
+def install_dependencies():
+    log("Настройка окружения...")
+    
+    try:
+        # Принудительная установка pip
+        log("Обеспечение наличия pip...")
+        ensurepip.bootstrap()
+        
+        log("Установка зависимостей...")
+        subprocess.run([
+            sys.executable, "-m", "pip", 
+            "install", "-U", 
+            "--user", 
+            "pip", "torch", "transformers"
+        ], check=True, capture_output=True)
 
-generator = pipeline(
-    "text-generation",
-    model=model,
-    tokenizer=tokenizer
-)
+    except Exception as e:
+        log(f"Ошибка установки: {e}")
+        # Расширенная диагностика
+        try:
+            import site
+            log(f"User site-packages: {site.getusersitepackages()}")
+        except:
+            log("Не удалось получить информацию о site-packages")
+        raise
 
-# Генерируем текст
-outputs = generator(
-    prompt,
-    max_new_tokens=max_tokens,
-    temperature=temperature,
-    top_p=top_p,
-    do_sample=True,
-    pad_token_id=tokenizer.eos_token_id
-)
+log("1. Начало подготовки окружения")
 
-# Получаем сгенерированный текст
-generated_text = outputs[0]["generated_text"]
+try:
+    install_dependencies()
 
-# Отрезаем промпт, чтобы получить только сгенерированный текст
-result = generated_text[len(prompt):]
+    log("2. Импорт библиотек...")
+    import torch
+    from transformers import pipeline, AutoModelForCausalLM, AutoTokenizer
 
-# Выводим результат в JSON
-result_obj = {
-    "text": result,
-    "tokens_used": len(tokenizer.encode(generated_text)),
-    "prompt_tokens": len(tokenizer.encode(prompt))
-}
+    log("3. Загрузка модели...")
+    # Загрузка модели
+    model_path = %q
+    log(f"   Путь к модели: {model_path}")
+    
+    log("   Загрузка токенизатора...")
+    tokenizer = AutoTokenizer.from_pretrained(model_path)
+    
+    log("   Загрузка модели...")
+    model = AutoModelForCausalLM.from_pretrained(
+        model_path, 
+        torch_dtype=torch.float32
+    )
 
-json.dump(result_obj, sys.stdout)
-`, prompt, maxTokens, temperature, topP, i.modelPath)
+    log("4. Создание генератора...")
+    # Создание генератора
+    generator = pipeline(
+        "text-generation",
+        model=model,
+        tokenizer=tokenizer
+    )
 
-	scriptPath := scriptDir + "/inference.py"
-	err := os.WriteFile(scriptPath, []byte(script), 0755)
-	if err != nil {
-		return "", fmt.Errorf("ошибка создания скрипта инференса: %v", err)
+    log("5. Генерация текста...")
+    # Генерация текста
+    prompt = %q
+    max_tokens = %d
+    temperature = %f
+
+    log(f"   Промпт: {prompt}")
+    log(f"   Макс. токенов: {max_tokens}")
+    log(f"   Температура: {temperature}")
+
+    outputs = generator(
+        prompt,
+        max_new_tokens=max_tokens,
+        temperature=temperature,
+        do_sample=True
+    )
+
+    # Получаем сгенерированный текст
+    generated_text = outputs[0]["generated_text"]
+
+    # Отрезаем промпт
+    if generated_text.startswith(prompt):
+        generated_text = generated_text[len(prompt):]
+
+    log("6. Текст сгенерирован успешно")
+
+    # Возвращаем результат
+    result = {
+        "text": generated_text,
+        "success": True
+    }
+    
+    print(json.dumps(result))
+
+except Exception as e:
+    log(f"ОШИБКА: {e}")
+    error_result = {
+        "text": "",
+        "success": False,
+        "error": str(e),
+        "traceback": traceback.format_exc()
+    }
+    print(json.dumps(error_result))
+
+log("7. Скрипт завершен")
+`, i.modelPath, safePrompt, maxTokens, temperature)
+
+	// Записываем скрипт в файл
+	if err := os.WriteFile(scriptPath, []byte(script), 0755); err != nil {
+		return "", fmt.Errorf("ошибка создания скрипта: %v", err)
 	}
 
-	// Создаем виртуальное окружение если его еще нет
-	venvPath := scriptDir + "/venv"
-	if _, err := os.Stat(venvPath); os.IsNotExist(err) {
-		cmd := exec.Command("python", "-m", "venv", venvPath)
-		err = cmd.Run()
-		if err != nil {
-			return "", fmt.Errorf("ошибка создания виртуального окружения: %v", err)
-		}
-
-		// Устанавливаем зависимости
-		cmd = exec.Command(venvPath+"/bin/pip", "install", "torch", "transformers")
-		err = cmd.Run()
-		if err != nil {
-			return "", fmt.Errorf("ошибка установки зависимостей: %v", err)
-		}
-	}
-
-	// Создаем команду для запуска скрипта
-	cmd := exec.CommandContext(ctx, venvPath+"/bin/python", scriptPath)
+	// Создаем команду для выполнения скрипта
+	cmd := exec.CommandContext(ctx, "python3", scriptPath)
 
 	// Получаем вывод
 	output, err := cmd.Output()
@@ -440,16 +544,18 @@ json.dump(result_obj, sys.stdout)
 
 	// Парсим JSON-результат
 	var result struct {
-		Text         string `json:"text"`
-		TokensUsed   int    `json:"tokens_used"`
-		PromptTokens int    `json:"prompt_tokens"`
+		Text    string `json:"text"`
+		Success bool   `json:"success"`
+		Error   string `json:"error,omitempty"`
 	}
 
 	if err := json.Unmarshal(output, &result); err != nil {
 		return "", fmt.Errorf("ошибка парсинга вывода: %v, output: %s", err, string(output))
 	}
 
-	i.logger.Info("Local inference completed, tokens used: %d", result.TokensUsed)
+	if !result.Success {
+		return "", fmt.Errorf("ошибка генерации: %s", result.Error)
+	}
 
 	return result.Text, nil
 }

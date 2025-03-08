@@ -45,3 +45,147 @@ ModuleNotFoundError: No module named 'torch'
     import torch
 ModuleNotFoundError: No module named 'torch'
 
+[2025-03-07 16:29:04.090] [INFO] [main.go:294] Graceful shutdown completed
+[2025-03-07 16:30:36.582] [INFO] [main.go:52] Starting SmolLM Sandbox v0.1.0
+[2025-03-07 16:30:36.582] [INFO] [main.go:55] Loading configuration from configs/config.yaml
+[2025-03-07 16:30:36.582] [INFO] [main.go:63] Initializing SmolLM2 model
+[2025-03-07 16:30:36.582] [INFO] [smollm.go:46] Initializing SmolLM2 model
+[2025-03-07 16:30:36.582] [INFO] [inference.go:84] Starting model API server...
+[2025-03-07 16:30:48.583] [INFO] [inference.go:261] Model API server started, PID: 179507
+[2025-03-07 16:31:48.644] [ERROR] [inference.go:73] Failed to start model server: таймаут ожидания запуска сервера
+[2025-03-07 16:31:48.653] [INFO] [main.go:67] Setting up sandbox environment
+[2025-03-07 16:31:48.653] [INFO] [environment.go:52] Initializing sandbox environment
+[2025-03-07 16:32:03.173] [INFO] [inference.go:381] Local inference for prompt length: 289
+[2025-03-07 16:32:03.220] [ERROR] [smollm.go:89] Inference error: ошибка выполнения скрипта: exit status 1, stderr: Traceback (most recent call last):
+  File "/tmp/smollm_inference/inference.py", line 2, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'
+
+[2025-03-07 16:32:07.918] [INFO] [inference.go:297] Stopping model API server...
+[2025-03-07 16:32:07.925] [INFO] [main.go:294] Graceful shutdown completed
+[2025-03-07 16:35:37.161] [INFO] [main.go:52] Starting SmolLM Sandbox v0.1.0
+[2025-03-07 16:35:37.161] [INFO] [main.go:55] Loading configuration from configs/config.yaml
+[2025-03-07 16:35:37.161] [INFO] [main.go:63] Initializing SmolLM2 model
+[2025-03-07 16:35:37.161] [INFO] [smollm.go:46] Initializing SmolLM2 model
+[2025-03-07 16:35:37.161] [INFO] [inference.go:84] Starting model API server...
+[2025-03-07 16:35:38.544] [INFO] [inference.go:292] Model API server started, PID: 191627
+[2025-03-07 16:37:38.589] [ERROR] [inference.go:73] Failed to start model server: таймаут ожидания запуска сервера
+[2025-03-07 16:37:38.589] [INFO] [main.go:67] Setting up sandbox environment
+[2025-03-07 16:37:38.590] [INFO] [environment.go:52] Initializing sandbox environment
+[2025-03-07 16:38:06.948] [INFO] [inference.go:395] Local inference for prompt length: 298
+[2025-03-07 16:38:28.792] [ERROR] [smollm.go:89] Inference error: ошибка выполнения скрипта: exit status 1, stderr: Traceback (most recent call last):
+  File "/tmp/smollm_inference/inference.py", line 2, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'
+
+[2025-03-07 16:38:35.599] [INFO] [inference.go:395] Local inference for prompt length: 491
+[2025-03-07 16:38:45.285] [ERROR] [smollm.go:89] Inference error: ошибка выполнения скрипта: exit status 1, stderr: Traceback (most recent call last):
+  File "/tmp/smollm_inference/inference.py", line 2, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'
+
+[2025-03-07 16:40:30.785] [INFO] [inference.go:311] Stopping model API server...
+[2025-03-07 16:40:30.785] [INFO] [main.go:294] Graceful shutdown completed
+[2025-03-07 16:43:48.463] [INFO] [main.go:52] Starting SmolLM Sandbox v0.1.0
+[2025-03-07 16:43:48.463] [INFO] [main.go:55] Loading configuration from configs/config.yaml
+[2025-03-07 16:43:48.463] [INFO] [main.go:63] Initializing SmolLM2 model
+[2025-03-07 16:43:48.463] [INFO] [smollm.go:46] Initializing SmolLM2 model
+[2025-03-07 16:43:48.464] [INFO] [inference.go:84] Starting model API server...
+[2025-03-07 16:43:51.243] [INFO] [inference.go:292] Model API server started, PID: 214380
+[2025-03-07 16:45:51.287] [ERROR] [inference.go:73] Failed to start model server: таймаут ожидания запуска сервера
+[2025-03-07 16:45:52.571] [INFO] [main.go:67] Setting up sandbox environment
+[2025-03-07 16:45:52.571] [INFO] [environment.go:52] Initializing sandbox environment
+[2025-03-07 16:46:20.338] [INFO] [inference.go:395] Local inference for prompt length: 302
+[2025-03-07 16:46:21.172] [ERROR] [smollm.go:89] Inference error: ошибка парсинга вывода: invalid character 'I' looking for beginning of value, output: Installing torch...
+{"text": "", "success": false, "error": "Command '['/usr/bin/python3', '-m', 'pip', 'install', 'torch']' returned non-zero exit status 1.", "traceback": "Traceback (most recent call last):\n  File \"/tmp/smollm_inference/inference.py\", line 28, in <module>\n    install_dependencies()\n    ~~~~~~~~~~~~~~~~~~~~^^\n  File \"/tmp/smollm_inference/inference.py\", line 25, in install_dependencies\n    install_package(package)\n    ~~~~~~~~~~~~~~~^^^^^^^^^\n  File \"/tmp/smollm_inference/inference.py\", line 19, in install_package\n    subprocess.check_call([sys.executable, \"-m\", \"pip\", \"install\", package])\n    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/subprocess.py\", line 421, in check_call\n    raise CalledProcessError(retcode, cmd)\nsubprocess.CalledProcessError: Command '['/usr/bin/python3', '-m', 'pip', 'install', 'torch']' returned non-zero exit status 1.\n"}
+
+[2025-03-07 16:46:50.526] [INFO] [inference.go:395] Local inference for prompt length: 497
+[2025-03-07 16:46:51.320] [ERROR] [smollm.go:89] Inference error: ошибка парсинга вывода: invalid character 'I' looking for beginning of value, output: Installing torch...
+{"text": "", "success": false, "error": "Command '['/usr/bin/python3', '-m', 'pip', 'install', 'torch']' returned non-zero exit status 1.", "traceback": "Traceback (most recent call last):\n  File \"/tmp/smollm_inference/inference.py\", line 28, in <module>\n    install_dependencies()\n    ~~~~~~~~~~~~~~~~~~~~^^\n  File \"/tmp/smollm_inference/inference.py\", line 25, in install_dependencies\n    install_package(package)\n    ~~~~~~~~~~~~~~~^^^^^^^^^\n  File \"/tmp/smollm_inference/inference.py\", line 19, in install_package\n    subprocess.check_call([sys.executable, \"-m\", \"pip\", \"install\", package])\n    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/subprocess.py\", line 421, in check_call\n    raise CalledProcessError(retcode, cmd)\nsubprocess.CalledProcessError: Command '['/usr/bin/python3', '-m', 'pip', 'install', 'torch']' returned non-zero exit status 1.\n"}
+
+[2025-03-07 16:48:44.356] [INFO] [inference.go:311] Stopping model API server...
+[2025-03-07 16:48:45.052] [INFO] [main.go:101] SmolLM Sandbox finished
+[2025-03-07 16:49:31.027] [INFO] [main.go:52] Starting SmolLM Sandbox v0.1.0
+[2025-03-07 16:49:31.027] [INFO] [main.go:55] Loading configuration from configs/config.yaml
+[2025-03-07 16:49:31.027] [INFO] [main.go:63] Initializing SmolLM2 model
+[2025-03-07 16:49:31.027] [INFO] [smollm.go:46] Initializing SmolLM2 model
+[2025-03-07 16:49:31.027] [INFO] [inference.go:84] Starting model API server...
+[2025-03-07 16:49:32.353] [INFO] [inference.go:292] Model API server started, PID: 227634
+[2025-03-07 16:51:32.404] [ERROR] [inference.go:73] Failed to start model server: таймаут ожидания запуска сервера
+[2025-03-07 16:51:32.405] [INFO] [main.go:67] Setting up sandbox environment
+[2025-03-07 16:51:32.405] [INFO] [environment.go:52] Initializing sandbox environment
+[2025-03-07 16:51:45.302] [INFO] [inference.go:395] Local inference for prompt length: 298
+[2025-03-07 16:51:45.438] [ERROR] [smollm.go:89] Inference error: ошибка выполнения скрипта: exit status 1, stderr:   File "/tmp/smollm_inference/inference.py", line 10
+    timestamp = time.strftime("%!Y(string=/opt/smollm-models/SmolLM2-135M-Instruct)-%!m(string=Системная инструкция: Ты SmolLM2, маленькая, но умная языковая модель. Ты можешь писать код, объяснять понятия и размышлять на разные темы.
+                              ^
+SyntaxError: unterminated string literal (detected at line 10)
+
+[2025-03-07 16:52:01.162] [INFO] [inference.go:395] Local inference for prompt length: 493
+[2025-03-07 16:52:01.392] [ERROR] [smollm.go:89] Inference error: ошибка выполнения скрипта: exit status 1, stderr:   File "/tmp/smollm_inference/inference.py", line 10
+    timestamp = time.strftime("%!Y(string=/opt/smollm-models/SmolLM2-135M-Instruct)-%!m(string=Системная инструкция: Ты SmolLM2, маленькая, но умная языковая модель. Ты можешь писать код, объяснять понятия и размышлять на разные темы.
+                              ^
+SyntaxError: unterminated string literal (detected at line 10)
+
+[2025-03-07 16:53:17.429] [INFO] [inference.go:311] Stopping model API server...
+[2025-03-07 16:53:17.429] [INFO] [main.go:101] SmolLM Sandbox finished
+[2025-03-07 16:53:50.259] [INFO] [main.go:52] Starting SmolLM Sandbox v0.1.0
+[2025-03-07 16:53:50.321] [INFO] [main.go:55] Loading configuration from configs/config.yaml
+[2025-03-07 16:53:50.321] [INFO] [main.go:63] Initializing SmolLM2 model
+[2025-03-07 16:53:50.321] [INFO] [smollm.go:46] Initializing SmolLM2 model
+[2025-03-07 16:53:50.321] [INFO] [inference.go:84] Starting model API server...
+[2025-03-07 16:53:54.664] [INFO] [inference.go:292] Model API server started, PID: 238336
+[2025-03-07 16:55:54.710] [ERROR] [inference.go:73] Failed to start model server: таймаут ожидания запуска сервера
+[2025-03-07 16:55:54.710] [INFO] [main.go:67] Setting up sandbox environment
+[2025-03-07 16:55:54.710] [INFO] [environment.go:52] Initializing sandbox environment
+[2025-03-07 16:56:09.756] [INFO] [inference.go:395] Local inference for prompt length: 298
+[2025-03-07 16:56:10.675] [ERROR] [smollm.go:89] Inference error: ошибка парсинга вывода: invalid character '-' after array element, output: [2025-03-07 16:56:09] 1. Начало подготовки окружения
+[2025-03-07 16:56:09] Настройка окружения...
+[2025-03-07 16:56:10] ОШИБКА: Command '['/usr/bin/python3', '-m', 'pip', 'install', '--upgrade', 'pip']' returned non-zero exit status 1.
+{"text": "", "success": false, "error": "Command '['/usr/bin/python3', '-m', 'pip', 'install', '--upgrade', 'pip']' returned non-zero exit status 1.", "traceback": "Traceback (most recent call last):\n  File \"/tmp/smollm_inference/inference.py\", line 50, in <module>\n    install_dependencies()\n    ~~~~~~~~~~~~~~~~~~~~^^\n  File \"/tmp/smollm_inference/inference.py\", line 17, in install_dependencies\n    subprocess.run([sys.executable, \"-m\", \"pip\", \"install\", \"--upgrade\", \"pip\"], check=True)\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/subprocess.py\", line 579, in run\n    raise CalledProcessError(retcode, process.args,\n                             output=stdout, stderr=stderr)\nsubprocess.CalledProcessError: Command '['/usr/bin/python3', '-m', 'pip', 'install', '--upgrade', 'pip']' returned non-zero exit status 1.\n"}
+[2025-03-07 16:56:10] 7. Скрипт завершен
+
+[2025-03-07 16:56:40.447] [INFO] [inference.go:395] Local inference for prompt length: 491
+[2025-03-07 16:56:41.112] [ERROR] [smollm.go:89] Inference error: ошибка парсинга вывода: invalid character '-' after array element, output: [2025-03-07 16:56:40] 1. Начало подготовки окружения
+[2025-03-07 16:56:40] Настройка окружения...
+[2025-03-07 16:56:41] ОШИБКА: Command '['/usr/bin/python3', '-m', 'pip', 'install', '--upgrade', 'pip']' returned non-zero exit status 1.
+{"text": "", "success": false, "error": "Command '['/usr/bin/python3', '-m', 'pip', 'install', '--upgrade', 'pip']' returned non-zero exit status 1.", "traceback": "Traceback (most recent call last):\n  File \"/tmp/smollm_inference/inference.py\", line 50, in <module>\n    install_dependencies()\n    ~~~~~~~~~~~~~~~~~~~~^^\n  File \"/tmp/smollm_inference/inference.py\", line 17, in install_dependencies\n    subprocess.run([sys.executable, \"-m\", \"pip\", \"install\", \"--upgrade\", \"pip\"], check=True)\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/subprocess.py\", line 579, in run\n    raise CalledProcessError(retcode, process.args,\n                             output=stdout, stderr=stderr)\nsubprocess.CalledProcessError: Command '['/usr/bin/python3', '-m', 'pip', 'install', '--upgrade', 'pip']' returned non-zero exit status 1.\n"}
+[2025-03-07 16:56:41] 7. Скрипт завершен
+
+[2025-03-07 16:56:45.974] [INFO] [inference.go:395] Local inference for prompt length: 686
+[2025-03-07 16:56:46.518] [ERROR] [smollm.go:89] Inference error: ошибка парсинга вывода: invalid character '-' after array element, output: [2025-03-07 16:56:46] 1. Начало подготовки окружения
+[2025-03-07 16:56:46] Настройка окружения...
+[2025-03-07 16:56:46] ОШИБКА: Command '['/usr/bin/python3', '-m', 'pip', 'install', '--upgrade', 'pip']' returned non-zero exit status 1.
+{"text": "", "success": false, "error": "Command '['/usr/bin/python3', '-m', 'pip', 'install', '--upgrade', 'pip']' returned non-zero exit status 1.", "traceback": "Traceback (most recent call last):\n  File \"/tmp/smollm_inference/inference.py\", line 50, in <module>\n    install_dependencies()\n    ~~~~~~~~~~~~~~~~~~~~^^\n  File \"/tmp/smollm_inference/inference.py\", line 17, in install_dependencies\n    subprocess.run([sys.executable, \"-m\", \"pip\", \"install\", \"--upgrade\", \"pip\"], check=True)\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/subprocess.py\", line 579, in run\n    raise CalledProcessError(retcode, process.args,\n                             output=stdout, stderr=stderr)\nsubprocess.CalledProcessError: Command '['/usr/bin/python3', '-m', 'pip', 'install', '--upgrade', 'pip']' returned non-zero exit status 1.\n"}
+[2025-03-07 16:56:46] 7. Скрипт завершен
+
+[2025-03-07 16:56:53.574] [INFO] [inference.go:311] Stopping model API server...
+[2025-03-07 16:56:53.574] [INFO] [main.go:101] SmolLM Sandbox finished
+[2025-03-07 16:59:16.483] [INFO] [main.go:52] Starting SmolLM Sandbox v0.1.0
+[2025-03-07 16:59:16.484] [INFO] [main.go:55] Loading configuration from configs/config.yaml
+[2025-03-07 16:59:16.484] [INFO] [main.go:63] Initializing SmolLM2 model
+[2025-03-07 16:59:16.484] [INFO] [smollm.go:46] Initializing SmolLM2 model
+[2025-03-07 16:59:16.487] [INFO] [inference.go:84] Starting model API server...
+[2025-03-07 16:59:18.609] [INFO] [inference.go:292] Model API server started, PID: 251246
+[2025-03-07 17:01:18.657] [ERROR] [inference.go:73] Failed to start model server: таймаут ожидания запуска сервера
+[2025-03-07 17:01:18.658] [INFO] [main.go:67] Setting up sandbox environment
+[2025-03-07 17:01:18.658] [INFO] [environment.go:52] Initializing sandbox environment
+[2025-03-07 17:01:22.928] [INFO] [inference.go:395] Local inference for prompt length: 289
+[2025-03-07 17:01:23.947] [ERROR] [smollm.go:89] Inference error: ошибка парсинга вывода: invalid character '-' after array element, output: [2025-03-07 17:01:23] 1. Начало подготовки окружения
+[2025-03-07 17:01:23] Настройка окружения...
+[2025-03-07 17:01:23] Обеспечение наличия pip...
+[2025-03-07 17:01:23] Ошибка установки: Command '['/usr/bin/python3', '-W', 'ignore::DeprecationWarning', '-c', '\nimport runpy\nimport sys\nsys.path = [\'/tmp/tmpmse1k_74/pip-24.3.1-py3-none-any.whl\'] + sys.path\nsys.argv[1:] = [\'install\', \'--no-cache-dir\', \'--no-index\', \'--find-links\', \'/tmp/tmpmse1k_74\', \'pip\']\nrunpy.run_module("pip", run_name="__main__", alter_sys=True)\n']' returned non-zero exit status 1.
+[2025-03-07 17:01:23] User site-packages: /home/archwing/.local/lib/python3.13/site-packages
+[2025-03-07 17:01:23] ОШИБКА: Command '['/usr/bin/python3', '-W', 'ignore::DeprecationWarning', '-c', '\nimport runpy\nimport sys\nsys.path = [\'/tmp/tmpmse1k_74/pip-24.3.1-py3-none-any.whl\'] + sys.path\nsys.argv[1:] = [\'install\', \'--no-cache-dir\', \'--no-index\', \'--find-links\', \'/tmp/tmpmse1k_74\', \'pip\']\nrunpy.run_module("pip", run_name="__main__", alter_sys=True)\n']' returned non-zero exit status 1.
+{"text": "", "success": false, "error": "Command '['/usr/bin/python3', '-W', 'ignore::DeprecationWarning', '-c', '\\nimport runpy\\nimport sys\\nsys.path = [\\'/tmp/tmpmse1k_74/pip-24.3.1-py3-none-any.whl\\'] + sys.path\\nsys.argv[1:] = [\\'install\\', \\'--no-cache-dir\\', \\'--no-index\\', \\'--find-links\\', \\'/tmp/tmpmse1k_74\\', \\'pip\\']\\nrunpy.run_module(\"pip\", run_name=\"__main__\", alter_sys=True)\\n']' returned non-zero exit status 1.", "traceback": "Traceback (most recent call last):\n  File \"/tmp/smollm_inference/inference.py\", line 43, in <module>\n    install_dependencies()\n    ~~~~~~~~~~~~~~~~~~~~^^\n  File \"/tmp/smollm_inference/inference.py\", line 20, in install_dependencies\n    ensurepip.bootstrap()\n    ~~~~~~~~~~~~~~~~~~~^^\n  File \"/usr/lib/python3.13/ensurepip/__init__.py\", line 119, in bootstrap\n    _bootstrap(root=root, upgrade=upgrade, user=user,\n    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n               altinstall=altinstall, default_pip=default_pip,\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n               verbosity=verbosity)\n               ^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/ensurepip/__init__.py\", line 172, in _bootstrap\n    return _run_pip([*args, \"pip\"], [os.fsdecode(tmp_wheel_path)])\n  File \"/usr/lib/python3.13/ensurepip/__init__.py\", line 87, in _run_pip\n    return subprocess.run(cmd, check=True).returncode\n           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/subprocess.py\", line 579, in run\n    raise CalledProcessError(retcode, process.args,\n                             output=stdout, stderr=stderr)\nsubprocess.CalledProcessError: Command '['/usr/bin/python3', '-W', 'ignore::DeprecationWarning', '-c', '\\nimport runpy\\nimport sys\\nsys.path = [\\'/tmp/tmpmse1k_74/pip-24.3.1-py3-none-any.whl\\'] + sys.path\\nsys.argv[1:] = [\\'install\\', \\'--no-cache-dir\\', \\'--no-index\\', \\'--find-links\\', \\'/tmp/tmpmse1k_74\\', \\'pip\\']\\nrunpy.run_module(\"pip\", run_name=\"__main__\", alter_sys=True)\\n']' returned non-zero exit status 1.\n"}
+[2025-03-07 17:01:23] 7. Скрипт завершен
+
+[2025-03-07 17:01:49.813] [INFO] [inference.go:395] Local inference for prompt length: 481
+[2025-03-07 17:01:52.544] [ERROR] [smollm.go:89] Inference error: ошибка парсинга вывода: invalid character '-' after array element, output: [2025-03-07 17:01:51] 1. Начало подготовки окружения
+[2025-03-07 17:01:51] Настройка окружения...
+[2025-03-07 17:01:51] Обеспечение наличия pip...
+[2025-03-07 17:01:52] Ошибка установки: Command '['/usr/bin/python3', '-W', 'ignore::DeprecationWarning', '-c', '\nimport runpy\nimport sys\nsys.path = [\'/tmp/tmpdrk6ljwj/pip-24.3.1-py3-none-any.whl\'] + sys.path\nsys.argv[1:] = [\'install\', \'--no-cache-dir\', \'--no-index\', \'--find-links\', \'/tmp/tmpdrk6ljwj\', \'pip\']\nrunpy.run_module("pip", run_name="__main__", alter_sys=True)\n']' returned non-zero exit status 1.
+[2025-03-07 17:01:52] User site-packages: /home/archwing/.local/lib/python3.13/site-packages
+[2025-03-07 17:01:52] ОШИБКА: Command '['/usr/bin/python3', '-W', 'ignore::DeprecationWarning', '-c', '\nimport runpy\nimport sys\nsys.path = [\'/tmp/tmpdrk6ljwj/pip-24.3.1-py3-none-any.whl\'] + sys.path\nsys.argv[1:] = [\'install\', \'--no-cache-dir\', \'--no-index\', \'--find-links\', \'/tmp/tmpdrk6ljwj\', \'pip\']\nrunpy.run_module("pip", run_name="__main__", alter_sys=True)\n']' returned non-zero exit status 1.
+{"text": "", "success": false, "error": "Command '['/usr/bin/python3', '-W', 'ignore::DeprecationWarning', '-c', '\\nimport runpy\\nimport sys\\nsys.path = [\\'/tmp/tmpdrk6ljwj/pip-24.3.1-py3-none-any.whl\\'] + sys.path\\nsys.argv[1:] = [\\'install\\', \\'--no-cache-dir\\', \\'--no-index\\', \\'--find-links\\', \\'/tmp/tmpdrk6ljwj\\', \\'pip\\']\\nrunpy.run_module(\"pip\", run_name=\"__main__\", alter_sys=True)\\n']' returned non-zero exit status 1.", "traceback": "Traceback (most recent call last):\n  File \"/tmp/smollm_inference/inference.py\", line 43, in <module>\n    install_dependencies()\n    ~~~~~~~~~~~~~~~~~~~~^^\n  File \"/tmp/smollm_inference/inference.py\", line 20, in install_dependencies\n    ensurepip.bootstrap()\n    ~~~~~~~~~~~~~~~~~~~^^\n  File \"/usr/lib/python3.13/ensurepip/__init__.py\", line 119, in bootstrap\n    _bootstrap(root=root, upgrade=upgrade, user=user,\n    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n               altinstall=altinstall, default_pip=default_pip,\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n               verbosity=verbosity)\n               ^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/ensurepip/__init__.py\", line 172, in _bootstrap\n    return _run_pip([*args, \"pip\"], [os.fsdecode(tmp_wheel_path)])\n  File \"/usr/lib/python3.13/ensurepip/__init__.py\", line 87, in _run_pip\n    return subprocess.run(cmd, check=True).returncode\n           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/subprocess.py\", line 579, in run\n    raise CalledProcessError(retcode, process.args,\n                             output=stdout, stderr=stderr)\nsubprocess.CalledProcessError: Command '['/usr/bin/python3', '-W', 'ignore::DeprecationWarning', '-c', '\\nimport runpy\\nimport sys\\nsys.path = [\\'/tmp/tmpdrk6ljwj/pip-24.3.1-py3-none-any.whl\\'] + sys.path\\nsys.argv[1:] = [\\'install\\', \\'--no-cache-dir\\', \\'--no-index\\', \\'--find-links\\', \\'/tmp/tmpdrk6ljwj\\', \\'pip\\']\\nrunpy.run_module(\"pip\", run_name=\"__main__\", alter_sys=True)\\n']' returned non-zero exit status 1.\n"}
+[2025-03-07 17:01:52] 7. Скрипт завершен
+
